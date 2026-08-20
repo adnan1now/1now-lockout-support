@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1Now Lockout Support</title>
+<style>
+  :root {
+    --ink: #101826;
+    --ink-soft: #4B5768;
+    --line: #DCE1E8;
+    --surface: #FFFFFF;
+    --bg: #F4F6F9;
+    --brand: #1E3A5F;
+    --brand-dark: #142943;
+    --accent: #C9622A;
+    --urgent: #C0362C;
+    --urgent-bg: #FBEAE9;
+    --high: #B4740E;
+    --high-bg: #FBF1DF;
+    --standard: #21734F;
+    --standard-bg: #E7F4EE;
+    --mono: 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    font-family: var(--sans);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  header {
+    background: var(--brand-dark);
+    color: #fff;
+    padding: 22px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--accent);
+  }
+
+  header .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  header .brand-mark {
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    background: var(--accent);
+    color: #1a1006;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+
+  header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  header .tagline {
+    font-size: 12.5px;
+    color: #B9C4D4;
+    font-family: var(--mono);
+  }
+
+  .intro {
+    max-width: 980px;
+    margin: 24px auto 0;
+    padding: 0 24px;
+    color: var(--ink-soft);
+    font-size: 14.5px;
+  }
+
+  .layout {
+    max-width: 980px;
+    margin: 20px auto 60px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 26px 28px;
+  }
+
+  .card h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card h2::before {
+    content: "";
+    width: 4px;
+    height: 14px;
+    background: var(--accent);
+    display: inline-block;
+    border-radius: 2px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+
+  .field .hint {
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-left: 6px;
+  }
+
+  input[type="text"], input[type="tel"], select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: var(--sans);
+    background: #FBFCFD;
+    color: var(--ink);
+    transition: border-color .15s, background .15s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--brand);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(30,58,95,0.12);
+  }
+
+  .radio-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .radio-pill {
+    position: relative;
+  }
+
+  .radio-pill input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .radio-pill span {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    background: #FBFCFD;
+    transition: all .15s;
+  }
+
+  .radio-pill input:checked + span {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+  }
+
+  .radio-pill input:focus-visible + span {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 22px 0;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  button {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 22px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: transform .05s, background .15s;
+  }
+
+  button:active { transform: translateY(1px); }
+
+  .btn-primary {
+    background: var(--brand);
+    color: #fff;
+    flex: 1;
+  }
+  .btn-primary:hover { background: var(--brand-dark); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+  }
+  .btn-secondary:hover { background: #F0F2F5; }
+
+  .required-note {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: -4px;
+    margin-bottom: 18px;
+  }
+
+  /* ---- Result card ---- */
+
+  #result-section { display: none; }
+
+  .ticket {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .ticket-head {
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .ticket-id {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .priority-badge {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  .priority-urgent { background: var(--urgent-bg); color: var(--urgent); border: 1px solid #E8B3AE; }
+  .priority-high { background: var(--high-bg); color: var(--high); border: 1px solid #EACB8C; }
+  .priority-standard { background: var(--standard-bg); color: var(--standard); border: 1px solid #A9D6BE; }
+
+  .ticket-body { padding: 24px 28px; }
+
+  .result-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid #F0F2F5;
+    font-size: 14px;
+  }
+  .result-row:last-child { border-bottom: none; }
+
+  .result-row .label {
+    color: var(--ink-soft);
+    font-weight: 600;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-top: 2px;
+  }
+
+  .result-row .value { color: var(--ink); }
+
+  .status-chip {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    background: #EEF1F5;
+    color: var(--ink-soft);
+  }
+
+  .summary-box {
+    margin-top: 14px;
+    background: #F8FAFB;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--ink);
+    white-space: pre-line;
+  }
+
+  .reasons {
+    margin-top: 4px;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .reasons li { margin-bottom: 3px; }
+
+  .resolve-area {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #F0F2F5;
+  }
+
+  .resolve-area .btn-primary {
+    width: auto;
+    background: var(--standard);
+  }
+  .resolve-area .btn-primary:hover { background: #185C3F; }
+
+  .resolved-banner {
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: var(--standard-bg);
+    border: 1px solid #A9D6BE;
+    color: var(--standard);
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  .status-chip.status-resolved {
+    background: var(--standard-bg);
+    color: var(--standard);
+  }
+
+  .status-chip.status-manual-review {
+    background: var(--high-bg);
+    color: var(--high);
+  }
+
+  footer {
+    max-width: 980px;
+    margin: 0 auto 40px;
+    padding: 0 24px;
+    font-size: 12px;
+    color: #9AA5B3;
+  }
+
+  @media (max-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .result-row { grid-template-columns: 1fr; }
+    header { padding: 18px 20px; flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="brand-mark">1NOW</span>
+    <div>
+      <h1>Lockout Support</h1>
+    </div>
+  </div>
+  <div class="tagline">Client Success &amp; Support Console</div>
+</header>
+
+<div class="intro">
+  Use this intake form when a renter reports being locked out of a vehicle during an active rental.
+  Fill in the details below and submit to get a recommended priority level, next action, and a case
+  summary you can log or hand off.
+</div>
+
+<div class="layout">
+
+  <!-- INTAKE FORM -->
+  <div class="card" id="form-card">
+    <h2>Support Intake</h2>
+
+    <form id="intake-form">
+      <div class="grid-2">
+        <div class="field">
+          <label for="renterName">Renter name</label>
+          <input type="text" id="renterName" placeholder="e.g. Jordan Ellis" required>
+        </div>
+        <div class="field">
+          <label for="bookingId">Booking ID</label>
+          <input type="text" id="bookingId" placeholder="e.g. BK-48213" required>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" placeholder="e.g. (555) 012-4487" required>
+        </div>
+        <div class="field">
+          <label for="location">Current location</label>
+          <input type="text" id="location" placeholder="e.g. Downtown lot, 5th &amp; Main" required>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="field">
+        <label>What caused the lockout?</label>
+        <div class="radio-row" id="cause-group">
+          <label class="radio-pill">
+            <input type="radio" name="cause" value="keys_inside" checked>
+            <span>Keys locked inside</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="cause" value="keys_lost">
+            <span>Keys lost</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="cause" value="fob_app_issue">
+            <span>Key fob / app not working</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="cause" value="other">
+            <span>Other</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field" id="other-cause-field" style="display:none;">
+        <label for="otherCauseDesc">Briefly describe what happened</label>
+        <input type="text" id="otherCauseDesc" placeholder="e.g. Vehicle won't start after unlocking, customer unsure why">
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Is the vehicle in an unsafe location?</label>
+          <div class="radio-row" id="unsafe-group">
+            <label class="radio-pill">
+              <input type="radio" name="unsafe" value="yes">
+              <span>Yes</span>
+            </label>
+            <label class="radio-pill">
+              <input type="radio" name="unsafe" value="no" checked>
+              <span>No</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Does the customer have a spare key?</label>
+          <div class="radio-row" id="spare-group">
+            <label class="radio-pill">
+              <input type="radio" name="spare" value="yes">
+              <span>Yes</span>
+            </label>
+            <label class="radio-pill">
+              <input type="radio" name="spare" value="no" checked>
+              <span>No</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Is there a time-sensitive deadline? <span class="hint">(flight, appointment, return time, etc.)</span></label>
+        <div class="radio-row" id="deadline-group">
+          <label class="radio-pill">
+            <input type="radio" name="deadline" value="yes">
+            <span>Yes</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="deadline" value="no" checked>
+            <span>No</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="required-note">All fields are required to generate an accurate triage result.</div>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary">Submit &amp; Triage</button>
+        <button type="button" class="btn-secondary" id="reset-btn">Reset</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- RESULT -->
+  <div class="card" id="result-section">
+    <h2>Triage Result</h2>
+    <div class="ticket">
+      <div class="ticket-head">
+        <span class="ticket-id" id="ticket-id">CASE #—</span>
+        <span class="priority-badge" id="priority-badge">—</span>
+      </div>
+      <div class="ticket-body">
+        <div class="result-row">
+          <div class="label">Recommended action</div>
+          <div class="value" id="recommended-action">—</div>
+        </div>
+        <div class="result-row">
+          <div class="label">Case status</div>
+          <div class="value"><span class="status-chip" id="case-status">—</span></div>
+        </div>
+        <div class="result-row">
+          <div class="label">Priority factors</div>
+          <div class="value"><ul class="reasons" id="reasons-list"></ul></div>
+        </div>
+
+        <div class="summary-box" id="case-summary">—</div>
+
+        <div id="resolve-area" class="resolve-area">
+          <button type="button" class="btn-primary" id="resolve-btn">Mark Case Resolved</button>
+        </div>
+        <div id="resolved-banner" class="resolved-banner" style="display:none;">
+          ✓ Case marked <strong>Resolved</strong> — closed by support agent.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Prototype tool · Mock data only · No customer information is stored or transmitted.
+</footer>
+
+<script>
+  const form = document.getElementById('intake-form');
+  const resultSection = document.getElementById('result-section');
+  const resetBtn = document.getElementById('reset-btn');
+
+  let caseCounter = 4821; // mock starting case number
+
+  function getRadioValue(name) {
+    const el = form.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  }
+
+  const otherCauseField = document.getElementById('other-cause-field');
+  const otherCauseDesc = document.getElementById('otherCauseDesc');
+
+  document.getElementById('cause-group').addEventListener('change', function (e) {
+    if (e.target.name === 'cause') {
+      const isOther = e.target.value === 'other';
+      otherCauseField.style.display = isOther ? 'block' : 'none';
+      if (!isOther) otherCauseDesc.value = '';
+    }
+  });
+
+  function causeLabel(value) {
+    return {
+      keys_inside: 'Keys locked inside vehicle',
+      keys_lost: 'Keys lost',
+      fob_app_issue: 'Key fob / app not working',
+      other: 'Other'
+    }[value] || value;
+  }
+
+  function runTriage(data) {
+    const reasons = [];
+    let priorityScore = 0; // 0 = standard, 1 = high, 2 = urgent
+    let action = '';
+    let status = '';
+    let manualReview = false;
+
+    // Rule: cause is "Other" -> route to manual review, don't guess at a fix.
+    // Unsafe-location and deadline factors still apply, since those affect
+    // how quickly an agent needs to look at it.
+    if (data.cause === 'other') {
+      manualReview = true;
+      reasons.push('Cause reported as "Other" — requires agent review, not auto-routed');
+    }
+
+    // Rule: unsafe location -> Urgent
+    if (data.unsafe === 'yes') {
+      priorityScore = Math.max(priorityScore, 2);
+      reasons.push('Vehicle is in an unsafe location');
+    }
+
+    // Rule: lost keys -> Urgent
+    if (data.cause === 'keys_lost') {
+      priorityScore = Math.max(priorityScore, 2);
+      reasons.push('Keys are lost (security concern, requires replacement)');
+    }
+
+    // Rule: time-sensitive deadline -> increases priority by one level
+    if (data.deadline === 'yes') {
+      priorityScore = Math.min(2, priorityScore + 1);
+      reasons.push('Customer has a time-sensitive deadline');
+    }
+
+    // Rule: no spare key and no self-service option -> High (unless already Urgent)
+    const selfServicePossible = data.cause === 'fob_app_issue';
+    if (data.spare === 'no' && !selfServicePossible) {
+      priorityScore = Math.max(priorityScore, 1);
+      reasons.push('No spare key available and no self-service option');
+    }
+
+    // Rule: fob/app issue with possible retry -> Standard baseline
+    if (selfServicePossible && reasons.length === 0) {
+      reasons.push('Key fob / app issue may be resolved with a remote retry');
+    }
+
+    if (reasons.length === 0) {
+      reasons.push('No elevated risk factors identified');
+    }
+
+    // Determine priority label
+    let priority, priorityClass;
+    if (priorityScore >= 2) {
+      priority = 'Urgent';
+      priorityClass = 'priority-urgent';
+    } else if (priorityScore === 1) {
+      priority = 'High';
+      priorityClass = 'priority-high';
+    } else {
+      priority = 'Standard';
+      priorityClass = 'priority-standard';
+    }
+
+    // Determine recommended action + status
+    if (data.unsafe === 'yes') {
+      action = 'Dispatch roadside assistance immediately and stay on the line with the customer until help arrives.';
+      status = 'Escalated — Safety Priority';
+    } else if (manualReview) {
+      action = 'Do not auto-route. Have a support agent review the description and decide the correct next step directly with the customer.';
+      status = 'Manual Review';
+    } else if (data.cause === 'keys_lost') {
+      action = 'Escalate to a senior agent to arrange key replacement and confirm rental security.';
+      status = 'Escalated — Awaiting Senior Agent';
+    } else if (selfServicePossible) {
+      action = 'Guide customer through app/fob reset. If unresolved after retry, dispatch a spare key.';
+      status = 'In Progress — Self-Service Attempt';
+    } else if (data.spare === 'no') {
+      action = 'Arrange delivery of a spare key or locksmith dispatch to the customer\'s location.';
+      status = 'Action Pending — Dispatch Required';
+    } else {
+      action = 'Advise customer to use their spare key. Confirm resolution by follow-up call.';
+      status = 'Action Pending — Customer Self-Resolve';
+    }
+
+    // If deadline is tight, add urgency note to action
+    if (data.deadline === 'yes' && data.unsafe !== 'yes') {
+      action += ' Prioritize this case due to the customer\'s time-sensitive deadline.';
+    }
+
+    caseCounter += 1;
+    const caseId = `LO-${caseCounter}`;
+
+    const causeLine = data.cause === 'other' && data.otherCauseDesc
+      ? `Cause: ${causeLabel(data.cause)} — "${data.otherCauseDesc}"`
+      : `Cause: ${causeLabel(data.cause)}`;
+
+    const summary =
+`Renter: ${data.renterName} (${data.phone})
+Booking: ${data.bookingId}
+Location: ${data.location}
+${causeLine}
+Unsafe location: ${data.unsafe === 'yes' ? 'Yes' : 'No'} | Spare key: ${data.spare === 'yes' ? 'Yes' : 'No'} | Time-sensitive: ${data.deadline === 'yes' ? 'Yes' : 'No'}
+
+Priority: ${priority}
+Next action: ${action}`;
+
+    return { caseId, priority, priorityClass, action, status, reasons, summary, manualReview };
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const data = {
+      renterName: document.getElementById('renterName').value.trim(),
+      bookingId: document.getElementById('bookingId').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      location: document.getElementById('location').value.trim(),
+      cause: getRadioValue('cause'),
+      otherCauseDesc: otherCauseDesc.value.trim(),
+      unsafe: getRadioValue('unsafe'),
+      spare: getRadioValue('spare'),
+      deadline: getRadioValue('deadline'),
+    };
+
+    if (!data.renterName || !data.bookingId || !data.phone || !data.location) {
+      alert('Please fill in all fields before submitting.');
+      return;
+    }
+
+    if (data.cause === 'other' && !data.otherCauseDesc) {
+      alert('Please briefly describe what happened for "Other" cause.');
+      otherCauseDesc.focus();
+      return;
+    }
+
+    // Reset resolve UI for a fresh submission
+    document.getElementById('resolve-area').style.display = 'block';
+    document.getElementById('resolved-banner').style.display = 'none';
+
+    const result = runTriage(data);
+
+    document.getElementById('ticket-id').textContent = `CASE #${result.caseId}`;
+
+    const badge = document.getElementById('priority-badge');
+    badge.textContent = result.priority;
+    badge.className = 'priority-badge ' + result.priorityClass;
+
+    document.getElementById('recommended-action').textContent = result.action;
+    const statusChip = document.getElementById('case-status');
+    statusChip.textContent = result.status;
+    statusChip.className = 'status-chip' + (result.manualReview ? ' status-manual-review' : '');
+
+    const reasonsList = document.getElementById('reasons-list');
+    reasonsList.innerHTML = '';
+    result.reasons.forEach(r => {
+      const li = document.createElement('li');
+      li.textContent = r;
+      reasonsList.appendChild(li);
+    });
+
+    document.getElementById('case-summary').textContent = result.summary;
+
+    resultSection.style.display = 'block';
+    resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.getElementById('resolve-btn').addEventListener('click', function () {
+    const statusChip = document.getElementById('case-status');
+    statusChip.textContent = 'Resolved';
+    statusChip.className = 'status-chip status-resolved';
+
+    document.getElementById('resolve-area').style.display = 'none';
+    document.getElementById('resolved-banner').style.display = 'block';
+  });
+
+  resetBtn.addEventListener('click', function () {
+    form.reset();
+    otherCauseField.style.display = 'none';
+    resultSection.style.display = 'none';
+  });
+</script>
+
+</body>
+</html>
